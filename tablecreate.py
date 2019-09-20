@@ -113,8 +113,10 @@ print(compiled.params)
 
 # SELECT________________________________________________________________
 
-select_stmt = select([userTable]).order_by(userTable.c.name)
-# or select([userTable.c.name]).where(userTable.c.name == 'ed')
+select_stmt = select([userTable])
+# select_stmt = select([userTable]).order_by(userTable.c.name)
+# or select([userTable.c.name]).where(userTable.c.name == 'ed').where(...)
+# eq WHERE AND WHERE
 
 connection = e.connect()
 
@@ -123,6 +125,52 @@ connection = e.connect()
 #for rrr in result:
 #	print(rrr)
 
-print(connection.execute(select_stmt).fetchall())
+# INSERT_____________________________________________________________
 
-# https://lectureswww.readthedocs.io/6.www.sync/2.codding/9.databases/2.sqlalchemy/2.sql_expressions.html#insert
+insert_stmt = userTable.insert().values(name='Fedya')
+
+connection.execute(insert_stmt)
+
+	# or
+
+connection.execute(userTable.insert(), [
+	{'id': 7, 'name': 'Joshhh'},
+	{'id': 13, 'name': 'Eugene'}
+])
+
+print(connection.execute(select_stmt).fetchall())
+#____________________________________________________________________
+
+# JOIN_______________________________________________________________
+
+join_obj = userTable.join(addressesTable,
+	userTable.c.id == addressesTable.c.user_id)
+
+print("*" * 30)
+
+print(join_obj)
+#_____________________________________________________________________
+
+# UPDATE______________________________________________________________
+
+update_stmt = userTable.update().values(name="Joshik").\
+	where(userTable.c.name == "Joshhh")
+
+connection.execute(update_stmt)
+
+print(connection.execute(select_stmt).fetchall())
+#_____________________________________________________________________
+
+# DELETE______________________________________________________________
+
+delete_stmt = userTable.delete().where(userTable.c.name == 'ped')
+
+connection.execute(delete_stmt)
+
+print(connection.execute(select_stmt).fetchall())
+#_____________________________________________________________________
+
+# check name.id of new row
+connection.execute(userTable.insert().values(name='Kyle'))
+
+print(connection.execute(select_stmt).fetchall())
